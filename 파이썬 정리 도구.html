@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>파이썬 공부 정리</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    margin: 0; padding: 1rem; background: #f9f9f9; color: #222;
+  }
+  h1 {
+    text-align: center; margin-bottom: 1rem; font-weight: 700;
+  }
+  #buttonBar {
+    max-width: 900px; margin: 0 auto 1rem auto; text-align: center;
+  }
+  button {
+    background: #4a90e2; border: none; color: white;
+    padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 6px;
+    cursor: pointer; transition: background 0.3s ease;
+    margin: 0 0.5rem 1rem 0.5rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  button:hover {
+    background: #357abd;
+  }
+  #app {
+    max-width: 900px; margin: 0 auto;
+  }
+  .entry {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.1);
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem 1rem 1rem;
+    position: relative;
+  }
+  .entry-header {
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+  }
+  .entry-title {
+    flex-grow: 1;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 0.2rem 0.3rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  .entry-title:focus {
+    border-color: #4a90e2;
+    background: #eaf4ff;
+    border-radius: 4px;
+  }
+  .bookmark-btn {
+    background: none; border: none; cursor: pointer;
+    width: 32px; height: 32px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+  }
+  .bookmark-btn svg {
+    fill: #bbb; transition: fill 0.25s ease;
+  }
+  .bookmark-btn.bookmarked svg {
+    fill: #f5b301;
+    filter: drop-shadow(0 0 1px #d18a00);
+  }
+  textarea.code, textarea.content {
+    width: 100%; border: 1px solid #ccc; border-radius: 4px;
+    font-family: "Source Code Pro", monospace, monospace;
+    font-size: 0.95rem; padding: 0.5rem; resize: vertical;
+    margin-bottom: 0.25rem; background: #fdfdfd; box-sizing: border-box;
+    min-height: 60px;
+  }
+  textarea.code {
+    height: 120px;
+    background: #f7f7f7;
+    border-left: 4px solid #4a90e2;
+  }
+  textarea.content {
+    min-height: 80px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+      sans-serif;
+  }
+  button.runCodeBtn {
+    background: #357abd; border: none; color: white;
+    padding: 0.3rem 0.7rem; font-size: 0.9rem; border-radius: 4px;
+    cursor: pointer; margin-bottom: 0.5rem;
+    touch-action: manipulation;
+  }
+  button.runCodeBtn:hover {
+    background: #285a9c;
+  }
+  .output {
+    white-space: pre-wrap;
+    background: #272822; color: #f8f8f2;
+    font-family: Consolas, "Courier New", monospace;
+    padding: 0.5rem; border-radius: 4px;
+    min-height: 60px; margin-bottom: 0.75rem;
+    overflow-x: auto;
+  }
+  #bookmarkedToggle {
+    display: flex; align-items: center; gap: 0.5rem;
+    max-width: 900px; margin: 1rem auto 1rem auto; user-select: none;
+  }
+  #bookmarkedToggle input {
+    cursor: pointer; touch-action: manipulation;
+  }
+  #searchContainer {
+    max-width: 900px; margin: 0 auto 0.5rem auto;
+    display: flex; justify-content: center;
+  }
+  #searchInput {
+    width: 100%; max-width: 400px;
+    font-size: 1rem; padding: 0.4rem 0.6rem;
+    border-radius: 6px; border: 1px solid #ccc;
+  }
+  #message {
+    text-align: center; color: #666;
+    max-width: 900px; margin: 0.5rem auto;
+    user-select: none;
+  }
+  /* 삭제 버튼 스타일 */
+  .delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e55353;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  /* 부분 복사 버튼 스타일 */
+  .copy-part-btn {
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    margin-left: 0.5rem;
+    touch-action: manipulation;
+  }
+  .copy-part-btn:hover {
+    background: #1e7e34;
+  }
+</style>
+</head>
+<body>
+  <h1>파이썬 공부 정리</h1>
+
+  <div id="buttonBar">
+    <button id="addEntryBtn" aria-label="새 공부 항목 추가">+ 새 항목 추가</button>
+    <button id="saveBtn" aria-label="저장하기">💾 저장</button>
+    <button id="copyAllBtn" aria-label="전체 항목 마크다운 복사">📋 전체 복사</button>
+  </div>
+
+  <div id="searchContainer">
+    <input id="searchInput" type="search" placeholder="검색어 입력..." aria-label="검색어 입력" autocomplete="off" />
+  </div>
+
+  <div id="bookmarkedToggle">
+    <input type="checkbox" id="showBookmarksOnly" />
+    <label for="showBookmarksOnly">⭐ 즐겨찾기 항목만 보기</label>
+  </div>
+
+  <div id="app" aria-live="polite" aria-label="파이썬 공부 정리 툴">
+    <!-- Entries가 여기에 삽입됩니다 -->
+  </div>
+
+  <div id="message" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <script>
+window.addEventListener("load", () => {
+  (async () => {
+    const pyodide = await loadPyodide();
+
+    const STORAGE_KEY = "python_study_notes_v1";
+
+    const app = document.getElementById("app");
+    const addEntryBtn = document.getElementById("addEntryBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const showBookmarksOnlyCheckbox = document.getElementById("showBookmarksOnly");
+    const copyAllBtn = document.getElementById("copyAllBtn");
+    const searchInput = document.getElementById("searchInput");
+    const messageDiv = document.getElementById("message");
+
+    function uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    let entries = [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        entries = JSON.parse(stored);
+        if (!Array.isArray(entries)) entries = [];
+      }
+    } catch (e) {
+      console.warn("localStorage parsing error:", e);
+      entries = [];
+    }
+    entries.forEach(e => { if (!e.id) e.id = uuidv4(); });
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      } catch (e) {
+        console.warn("저장 실패", e);
+      }
+    }
+
+    function starIcon(filled) {
+      return filled
+        ? `<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="#f5b301" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`
+        : `<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21 12 17.77 5.82 21 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    }
+
+    function findIndexById(id) {
+      return entries.findIndex(e => e.id === id);
+    }
+
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    function toMarkdown(entry, outputText) {
+      let md = "";
+      if (entry.title.trim()) md += `### ${entry.title.trim()}\n\n`;
+      if (entry.code.trim()) {
+        md += "```python\n";
+        md += entry.code.trim() + "\n";
+        md += "```\n\n";
+      }
+      if (outputText && outputText.trim()) {
+        md += "```\n";
+        md += outputText.trim() + "\n";
+        md += "```\n\n";
+      }
+      if (entry.content.trim()) md += entry.content.trim() + "\n\n";
+      return md;
+    }
+
+    function createEntryDOM(entry) {
+      const container = document.createElement("section");
+      container.className = "entry";
+      container.setAttribute("data-id", entry.id);
+      container.setAttribute("tabindex", "-1");
+
+      const header = document.createElement("div");
+      header.className = "entry-header";
+
+      const titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.className = "entry-title";
+      titleInput.value = entry.title || "";
+      titleInput.placeholder = "제목을 입력하세요";
+      titleInput.setAttribute("aria-label", "공부 항목 제목");
+      titleInput.autocomplete = "off";
+
+      const bookmarkBtn = document.createElement("button");
+      bookmarkBtn.className = "bookmark-btn";
+      bookmarkBtn.type = "button";
+      bookmarkBtn.setAttribute("aria-label", entry.bookmarked ? "즐겨찾기 해제" : "즐겨찾기 추가");
+      bookmarkBtn.setAttribute("title", entry.bookmarked ? "즐겨찾기 해제" : "즐겨찾기 추가");
+      bookmarkBtn.innerHTML = entry.bookmarked ? starIcon(true) : starIcon(false);
+      if (entry.bookmarked) bookmarkBtn.classList.add("bookmarked");
+
+      const codeArea = document.createElement("textarea");
+      codeArea.className = "code";
+      codeArea.placeholder = "파이썬 코드 입력 (복사 붙여넣기 편하게)";
+      codeArea.spellcheck = false;
+      codeArea.value = entry.code || "";
+      codeArea.setAttribute("aria-label", "파이썬 코드 내용");
+      codeArea.style.height = "auto";
+
+      const runBtn = document.createElement("button");
+      runBtn.type = "button";
+      runBtn.className = "runCodeBtn";
+      runBtn.textContent = "코드 실행";
+      runBtn.setAttribute("aria-label", "코드 실행");
+
+      const copyPartBtn = document.createElement("button");
+      copyPartBtn.type = "button";
+      copyPartBtn.className = "copy-part-btn";
+      copyPartBtn.textContent = "부분 복사";
+      copyPartBtn.setAttribute("aria-label", "부분 복사");
+
+      const outputDiv = document.createElement("div");
+      outputDiv.className = "output";
+      outputDiv.setAttribute("aria-live", "polite");
+      outputDiv.textContent = entry.outputText || "";
+
+      const contentArea = document.createElement("textarea");
+      contentArea.className = "content";
+      contentArea.placeholder = "설명 및 내용 정리";
+      contentArea.value = entry.content || "";
+      contentArea.setAttribute("aria-label", "설명 및 내용");
+      contentArea.style.height = "auto";
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.textContent = "삭제";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.setAttribute("aria-label", "공부 항목 삭제");
+
+      bookmarkBtn.addEventListener("click", () => {
+        entry.bookmarked = !entry.bookmarked;
+        bookmarkBtn.classList.toggle("bookmarked", entry.bookmarked);
+        bookmarkBtn.innerHTML = entry.bookmarked ? starIcon(true) : starIcon(false);
+        bookmarkBtn.setAttribute("aria-label", entry.bookmarked ? "즐겨찾기 해제" : "즐겨찾기 추가");
+        bookmarkBtn.setAttribute("title", entry.bookmarked ? "즐겨찾기 해제" : "즐겨찾기 추가");
+        save();
+        filterEntries(true);
+      });
+
+      titleInput.addEventListener("input", (e) => {
+        entry.title = e.target.value;
+        save();
+        if (showBookmarksOnlyCheckbox.checked && !entry.bookmarked) {
+          filterEntries(false);
+        }
+      });
+
+      codeArea.addEventListener("input", (e) => {
+        entry.code = e.target.value;
+        save();
+        autoResizeTextarea(codeArea);
+      });
+      setTimeout(() => autoResizeTextarea(codeArea), 0);
+
+      contentArea.addEventListener("input", (e) => {
+        entry.content = e.target.value;
+        save();
+        autoResizeTextarea(contentArea);
+      });
+      setTimeout(() => autoResizeTextarea(contentArea), 0);
+
+      deleteBtn.addEventListener("click", () => {
+        if (confirm("이 항목을 삭제하시겠습니까?")) {
+          const idx = findIndexById(entry.id);
+          if (idx !== -1) {
+            entries.splice(idx, 1);
+            save();
+          }
+          container.remove();
+          filterEntries(true);
+          if (entries.length === 0) {
+            messageDiv.textContent = "아직 정리된 내용이 없습니다. ‘+ 새 항목 추가’ 버튼을 눌러 시작하세요.";
+          }
+        }
+      });
+
+      runBtn.addEventListener("click", async () => {
+        outputDiv.textContent = "실행 중...";
+        try {
+          await pyodide.runPythonAsync(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = sys.stdout
+`);
+          await pyodide.runPythonAsync(entry.code || "");
+          const output = pyodide.runPython("sys.stdout.getvalue()");
+          outputDiv.textContent = output || "(출력 없음)";
+          entry.outputText = output || "";
+          save();
+        } catch (err) {
+          const errMsg = "에러: " + (err.message || err);
+          outputDiv.textContent = errMsg;
+          entry.outputText = errMsg;
+          save();
+        }
+      });
+
+      copyPartBtn.addEventListener("click", async () => {
+        try {
+          const mdText = toMarkdown(entry, entry.outputText);
+          await navigator.clipboard.writeText(mdText);
+          alert("선택한 항목이 마크다운 형식으로 복사되었습니다.\n노션, 블로그 등에 붙여넣기 하세요.");
+        } catch {
+          alert("복사에 실패했습니다.\n브라우저에서 클립보드 권한을 허용해 주세요.\n또는 페이지를 HTTPS 환경에서 열었는지 확인하세요.");
+        }
+      });
+
+      header.appendChild(bookmarkBtn);
+      header.appendChild(titleInput);
+
+      container.appendChild(header);
+      container.appendChild(codeArea);
+      container.appendChild(runBtn);
+      container.appendChild(copyPartBtn);
+      container.appendChild(outputDiv);
+      container.appendChild(contentArea);
+      container.appendChild(deleteBtn);
+
+      return container;
+    }
+
+    function initialRender() {
+      app.innerHTML = "";
+      entries.forEach(entry => {
+        const dom = createEntryDOM(entry);
+        app.appendChild(dom);
+      });
+      filterEntries(false);
+      if (entries.length === 0) {
+        messageDiv.textContent = "아직 정리된 내용이 없습니다. ‘+ 새 항목 추가’ 버튼을 눌러 시작하세요.";
+      } else {
+        messageDiv.textContent = "";
+      }
+    }
+
+    function filterEntries(focusMove = false) {
+      const showBookmarksOnly = showBookmarksOnlyCheckbox.checked;
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      const entryElements = app.querySelectorAll(".entry");
+      entryElements.forEach(entryEl => {
+        const id = entryEl.getAttribute("data-id");
+        const entry = entries.find(e => e.id === id);
+        if (!entry) {
+          entryEl.style.display = "none";
+          return;
+        }
+        if (showBookmarksOnly && !entry.bookmarked) {
+          entryEl.style.display = "none";
+          return;
+        }
+        const haystack = (entry.title + "\n" + entry.code + "\n" + entry.content).toLowerCase();
+        if (searchTerm && !haystack.includes(searchTerm)) {
+          entryEl.style.display = "none";
+          return;
+        }
+        entryEl.style.display = "";
+        visibleCount++;
+      });
+
+      if (entries.length === 0) {
+        messageDiv.textContent = "아직 정리된 내용이 없습니다. ‘+ 새 항목 추가’ 버튼을 눌러 시작하세요.";
+      } else if (visibleCount === 0) {
+        messageDiv.textContent = "검색 결과가 없습니다.";
+      } else {
+        messageDiv.textContent = "";
+      }
+
+      app.setAttribute("aria-label", `파이썬 공부 정리 툴, 현재 표시된 항목 수: ${visibleCount}개`);
+
+      if (focusMove && visibleCount > 0) {
+        const firstVisible = Array.from(entryElements).find(el => el.style.display !== "none");
+        if (firstVisible) firstVisible.focus();
+      }
+    }
+
+    function addNewEntry() {
+      const newEntry = {
+        id: uuidv4(),
+        title: "",
+        code: "",
+        content: "",
+        outputText: "",
+        bookmarked: false,
+        createdAt: Date.now(),
+      };
+      entries.unshift(newEntry);
+      save();
+
+      requestAnimationFrame(() => {
+        const newDom = createEntryDOM(newEntry);
+        if (app.firstChild) {
+          app.insertBefore(newDom, app.firstChild);
+        } else {
+          app.appendChild(newDom);
+        }
+        filterEntries(true);
+
+        setTimeout(() => {
+          const titleInput = newDom.querySelector(".entry-title");
+          if (titleInput) {
+            titleInput.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+            titleInput.focus();
+          }
+        }, 300);
+      });
+    }
+
+    copyAllBtn.addEventListener("click", async () => {
+      const showBookmarksOnly = showBookmarksOnlyCheckbox.checked;
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      const filteredEntries = entries.filter(e => {
+        if (showBookmarksOnly && !e.bookmarked) return false;
+        if (searchTerm) {
+          const haystack = (e.title + "\n" + e.code + "\n" + e.content).toLowerCase();
+          if (!haystack.includes(searchTerm)) return false;
+        }
+        return true;
+      });
+      if (filteredEntries.length === 0) {
+        alert("복사할 항목이 없습니다.");
+        return;
+      }
+      // 전체 복사 시도: 출력값도 포함
+      const mdText = filteredEntries.map(e => toMarkdown(e, e.outputText)).join("---\n\n");
+      try {
+        await navigator.clipboard.writeText(mdText);
+        alert("전체 항목이 마크다운 형식으로 복사되었습니다.\n노션, 블로그 등에 붙여넣기 하세요.");
+      } catch {
+        alert("복사에 실패했습니다.\n브라우저에서 클립보드 권한을 허용해 주세요.\n또는 페이지를 HTTPS 환경에서 열었는지 확인하세요.");
+      }
+    });
+
+    // 모바일 터치 환경 대응: click + touchstart 이벤트 모두 바인딩
+    function handleAddNewEntry() {
+      addNewEntry();
+    }
+    addEntryBtn.addEventListener("click", handleAddNewEntry);
+    addEntryBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      handleAddNewEntry();
+    });
+
+    saveBtn.addEventListener("click", () => {
+      save();
+      alert("저장되었습니다.");
+    });
+
+    showBookmarksOnlyCheckbox.addEventListener("change", () => filterEntries(true));
+    searchInput.addEventListener("input", () => filterEntries(false));
+
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        addNewEntry();
+      }
+    });
+
+    window.addEventListener("beforeunload", save);
+
+    initialRender();
+  })();
+});
+  </script>
+</body>
+</html>
